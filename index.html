@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ом — Студия йоги</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #5B4B3A;
+            --accent: #D4A574;
+            --accent-dark: #C49A6C;
+            --bg-light: #FFF8F0;
+            --bg-card: #FFFFFF;
+            --text: #3D3228;
+            --text-light: #8B7B6B;
+            --success: #4CAF50;
+            --danger: #E74C3C;
+            --border: #EDE0D4;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --gradient: linear-gradient(135deg, #6B4C3A 0%, #8B6B4F 100%);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #6B4C3A 0%, #A8826A 100%);
+            min-height: 100vh;
+        }
+        #auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .auth-box {
+            background: white;
+            border-radius: 32px;
+            padding: 48px 40px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+        .auth-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 56px;
+            font-weight: 700;
+            text-align: center;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .auth-sub {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+        .auth-tabs {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+        .auth-tab.active {
+            color: var(--accent-dark);
+            border-bottom: 2px solid var(--accent-dark);
+            margin-bottom: -2px;
+        }
+        .field {
+            margin-bottom: 20px;
+        }
+        .field label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .field input, .field select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            width: 100%;
+        }
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--primary);
+            border: 1px solid var(--border);
+        }
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+            width: auto;
+        }
+        .error-msg {
+            color: var(--danger);
+            font-size: 13px;
+            margin-top: 12px;
+            text-align: center;
+        }
+        .success-msg {
+            color: var(--success);
+            font-size: 13px;
+            margin-top: 12px;
+            text-align: center;
+        }
+        .hint-row {
+            margin-top: 20px;
+            padding: 12px;
+            background: var(--bg-light);
+            border-radius: 12px;
+            font-size: 12px;
+            text-align: center;
+        }
+        #app { display: none; }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: white;
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 700;
+            padding: 32px 24px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-light);
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+        }
+        .nav-item:hover {
+            background: var(--bg-light);
+            color: var(--accent-dark);
+        }
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(107, 76, 58, 0.08), rgba(139, 107, 79, 0.08));
+            color: var(--accent-dark);
+            border-right: 3px solid var(--accent-dark);
+        }
+        .nav-icon { font-size: 20px; width: 28px; }
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 24px;
+            border-top: 1px solid var(--border);
+        }
+        .user-chip {
+            padding: 12px;
+            background: var(--bg-light);
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+        .uname { font-weight: 700; margin-bottom: 4px; }
+        .urole { font-size: 12px; color: var(--text-light); }
+        .main {
+            margin-left: 280px;
+            padding: 32px 48px;
+        }
+        .page { display: none; }
+        .page.active { display: block; }
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+        .page-sub {
+            color: var(--text-light);
+            margin-bottom: 32px;
+            font-size: 16px;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        .card h4 {
+            font-size: 20px;
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+        .card p {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-success { background: #E8F5E9; color: var(--success); }
+        .badge-info { background: #E3F2FD; color: #2196F3; }
+        .table-wrap {
+            overflow-x: auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: var(--gradient);
+            color: white;
+            padding: 28px;
+            border-radius: 20px;
+            text-align: center;
+        }
+        .stat-card h4 { font-size: 14px; opacity: 0.9; margin-bottom: 12px; }
+        .stat-card p { font-size: 36px; font-weight: 700; }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+        .modal {
+            background: white;
+            padding: 32px;
+            border-radius: 24px;
+            width: 450px;
+            max-width: 90%;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        .empty { text-align: center; padding: 48px; color: var(--text-light); }
+        .client-list {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+        .client-item {
+            padding: 8px 0;
+            font-size: 13px;
+            border-bottom: 1px dashed var(--border);
+        }
+        .price { font-size: 18px; font-weight: 700; color: var(--accent-dark); }
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; }
+            .sidebar .logo, .sidebar .nav-item span:not(.nav-icon), .sidebar-footer .user-chip, .sidebar-footer button span { display: none; }
+            .main { margin-left: 70px; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="auth-screen">
+    <div class="auth-box">
+        <div class="auth-logo">ॐ Ом</div>
+        <div class="auth-sub">Студия йоги</div>
+        <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchTab('login')">Вход</button>
+            <button class="auth-tab" onclick="switchTab('register')">Регистрация</button>
+        </div>
+        <div id="login-form">
+            <div class="field">
+                <label><i class="fas fa-envelope"></i> Email</label>
+                <input type="email" id="login-email" placeholder="your@email.ru" value="client@om.ru">
+            </div>
+            <div class="field">
+                <label><i class="fas fa-lock"></i> Пароль</label>
+                <input type="password" id="login-password" placeholder="••••••••" value="client123">
+            </div>
+            <button class="btn btn-primary" onclick="doLogin()">Войти</button>
+            <div id="login-error" class="error-msg"></div>
+        </div>
+        <div id="register-form" style="display:none">
+            <div class="field"><label>Полное имя</label><input type="text" id="reg-name" placeholder="Анна Иванова"></div>
+            <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="your@email.ru"></div>
+            <div class="field"><label>Пароль (мин. 6)</label><input type="password" id="reg-password" placeholder="Придумайте пароль"></div>
+            <div class="field"><label>Телефон</label><input type="tel" id="reg-phone" placeholder="+7 (999) 123-45-67"></div>
+            <div class="field">
+                <label>Регистрация как</label>
+                <select id="reg-role"><option value="client">Клиент</option><option value="instructor">Инструктор</option></select>
+            </div>
+            <button class="btn btn-primary" onclick="doRegister()">Зарегистрироваться</button>
+            <div id="register-message" class="error-msg"></div>
+        </div>
+    </div>
+</div>
+
+<div id="app">
+    <div class="sidebar">
+        <div class="logo">ॐ Ом</div>
+        <button class="nav-item" data-page="schedule" onclick="showPage('schedule')"><span class="nav-icon"><i class="fas fa-calendar-alt"></i></span><span>Расписание</span></button>
+        <button class="nav-item" data-page="my-classes" onclick="showPage('my-classes')" id="nav-my-classes" style="display:none"><span class="nav-icon"><i class="fas fa-clock"></i></span><span>Мои занятия</span></button>
+        <button class="nav-item" data-page="history" onclick="showPage('history')" id="nav-history" style="display:none"><span class="nav-icon"><i class="fas fa-history"></i></span><span>История</span></button>
+        <button class="nav-item" data-page="instructor-classes" onclick="showPage('instructor-classes')" id="nav-instructor" style="display:none"><span class="nav-icon"><i class="fas fa-chalkboard-user"></i></span><span>Мои занятия (тренер)</span></button>
+        <button class="nav-item" data-page="admin" onclick="showPage('admin')" id="nav-admin" style="display:none"><span class="nav-icon"><i class="fas fa-crown"></i></span><span>Администрирование</span></button>
+        <div class="sidebar-footer">
+            <div class="user-chip"><div class="uname" id="sidebar-name">—</div><div class="urole" id="sidebar-role">—</div></div>
+            <button class="btn btn-secondary" onclick="doLogout()" style="width:100%"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+        </div>
+    </div>
+    <div class="main">
+        <div class="page active" id="page-schedule">
+            <div class="page-title">Расписание занятий</div>
+            <div class="page-sub">Выберите практику и запишитесь на занятие</div>
+            <div id="schedule-grid" class="card-grid"></div>
+        </div>
+        <div class="page" id="page-my-classes">
+            <div class="page-title">Мои занятия</div>
+            <div class="page-sub">Активные записи на занятия</div>
+            <div id="my-classes-content"></div>
+        </div>
+        <div class="page" id="page-history">
+            <div class="page-title">История посещений</div>
+            <div class="page-sub">Отменённые и прошедшие занятия</div>
+            <div id="history-content"></div>
+        </div>
+        <div class="page" id="page-instructor-classes">
+            <div class="page-title">Мои занятия (тренер)</div>
+            <div class="page-sub">Занятия, которые вы ведёте, и записавшиеся клиенты</div>
+            <div id="instructor-classes-grid" class="card-grid"></div>
+        </div>
+        <div class="page" id="page-admin">
+            <div class="page-title">Панель администратора</div>
+            <div class="page-sub">Управление студией йоги</div>
+            <div class="stats-grid" id="stats-grid"></div>
+            <div style="background: white; border-radius: 20px; padding: 28px; margin-top: 24px;">
+                <h3>➕ Добавить новое занятие</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+                    <input type="text" id="new-title" placeholder="Название" style="padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
+                    <input type="text" id="new-instructor" placeholder="Инструктор" style="padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
+                    <input type="datetime-local" id="new-datetime" style="padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
+                    <input type="number" id="new-max" placeholder="Макс. участников" value="15" style="padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
+                    <input type="text" id="new-location" placeholder="Место" style="padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
+                    <input type="number" id="new-price" placeholder="Цена" value="500" style="padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
+                </div>
+                <button class="btn btn-primary" onclick="addClass()" style="margin-top: 20px; width: auto;">Добавить занятие</button>
+                <div id="add-class-message" class="success-msg"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="booking-modal">
+    <div class="modal">
+        <h3>Подтверждение записи</h3>
+        <p id="modal-title"></p>
+        <div id="modal-message" class="success-msg"></div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+            <button class="btn btn-primary" onclick="confirmBooking()">Подтвердить</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============= ЛОКАЛЬНАЯ БАЗА ДАННЫХ =============
+    let currentUser = null;
+    let selectedClassId = null;
+
+    function hashPassword(pw) {
+        let h = 0;
+        for (let i = 0; i < pw.length; i++) {
+            h = ((h << 5) - h + pw.charCodeAt(i)) | 0;
+        }
+        return "h_" + Math.abs(h).toString(16);
+    }
+
+    function loadDB() {
+        const raw = localStorage.getItem('yoga_studio_db');
+        if (raw) return JSON.parse(raw);
+        
+        const now = new Date();
+        const db = {
+            users: [
+                { id: 1, name: "Администратор", email: "admin@om.ru", password: hashPassword("admin123"), role: "admin", phone: "+7 (999) 111-22-33" },
+                { id: 2, name: "Анна Михайлова", email: "client@om.ru", password: hashPassword("client123"), role: "client", phone: "+7 (999) 444-55-66" },
+                { id: 3, name: "Екатерина Смирнова", email: "instructor@om.ru", password: hashPassword("instructor123"), role: "instructor", phone: "+7 (999) 222-33-44" }
+            ],
+            clients: [{ id: 1, user_id: 2, address: "г. Москва" }],
+            classes: [
+                { id: 1, title: "Хатха-йога", instructor: "Екатерина Смирнова", datetime: new Date(now.getTime() + 86400000).toISOString(), max_participants: 15, current_participants: 8, location: "Зал 1", price: 500 },
+                { id: 2, title: "Виньяса-флоу", instructor: "Екатерина Смирнова", datetime: new Date(now.getTime() + 172800000).toISOString(), max_participants: 12, current_participants: 5, location: "Зал 2", price: 600 },
+                { id: 3, title: "Аштанга-йога", instructor: "Дмитрий Петров", datetime: new Date(now.getTime() + 259200000).toISOString(), max_participants: 10, current_participants: 7, location: "Зал 1", price: 700 },
+                { id: 4, title: "Медитация", instructor: "Екатерина Смирнова", datetime: new Date(now.getTime() + 345600000).toISOString(), max_participants: 20, current_participants: 15, location: "Зал 3", price: 300 }
+            ],
+            bookings: [
+                { id: 1, client_id: 1, class_id: 2, booking_date: new Date().toISOString(), status: "confirmed" },
+                { id: 2, client_id: 1, class_id: 1, booking_date: new Date().toISOString(), status: "confirmed" }
+            ],
+            nextId: { users: 4, clients: 2, classes: 5, bookings: 3 }
+        };
+        saveDB(db);
+        return db;
+    }
+
+    function saveDB(db) {
+        localStorage.setItem('yoga_studio_db', JSON.stringify(db));
+    }
+
+    function getNextId(db, table) {
+        const id = db.nextId[table] || 1;
+        db.nextId[table] = id + 1;
+        return id;
+    }
+
+    function register(name, email, password, phone, role) {
+        const db = loadDB();
+        if (!name || !email || !password) return { ok: false, error: "Заполните все поля" };
+        if (password.length < 6) return { ok: false, error: "Пароль минимум 6 символов" };
+        
+        const exists = db.users.find(u => u.email === email);
+        if (exists) return { ok: false, error: "Email уже зарегистрирован" };
+        
+        const userId = getNextId(db, "users");
+        db.users.push({ id: userId, name, email, password: hashPassword(password), role, phone: phone || "" });
+        
+        if (role === 'client') {
+            const clientId = getNextId(db, "clients");
+            db.clients.push({ id: clientId, user_id: userId, address: "" });
+        }
+        
+        saveDB(db);
+        return { ok: true, message: "Регистрация успешна!" };
+    }
+
+    function login(email, password) {
+        const db = loadDB();
+        const user = db.users.find(u => u.email === email);
+        if (!user || user.password !== hashPassword(password)) {
+            return { ok: false, error: "Неверный email или пароль" };
+        }
+        return { ok: true, user: { id: user.id, name: user.name, role: user.role, email: user.email, phone: user.phone } };
+    }
+
+    function getAllClasses() {
+        const db = loadDB();
+        return db.classes.map(c => ({
+            ...c,
+            booked_count: db.bookings.filter(b => b.class_id === c.id && b.status === 'confirmed').length
+        }));
+    }
+
+    function getInstructorClasses(instructorName) {
+        const db = loadDB();
+        const classes = db.classes.filter(c => c.instructor === instructorName);
+        return classes.map(c => {
+            const bookings = db.bookings.filter(b => b.class_id === c.id && b.status === 'confirmed');
+            const clients = bookings.map(b => {
+                const client = db.clients.find(cl => cl.id === b.client_id);
+                const user = db.users.find(u => u.id === client?.user_id);
+                return user ? { name: user.name, phone: user.phone, email: user.email } : null;
+            }).filter(c => c);
+            return { ...c, booked_count: bookings.length, clients };
+        });
+    }
+
+    function bookClass(userId, classId) {
+        const db = loadDB();
+        const client = db.clients.find(c => c.user_id === userId);
+        if (!client) return { ok: false, error: "Профиль клиента не найден" };
+        
+        const cls = db.classes.find(c => c.id === classId);
+        if (!cls) return { ok: false, error: "Занятие не найдено" };
+        
+        const alreadyBooked = db.bookings.find(b => b.client_id === client.id && b.class_id === classId && b.status === 'confirmed');
+        if (alreadyBooked) return { ok: false, error: "Вы уже записаны" };
+        
+        const activeBookings = db.bookings.filter(b => b.client_id === client.id && b.status === 'confirmed');
+        if (activeBookings.length >= 5) return { ok: false, error: "У вас уже 5 активных записей" };
+        
+        const bookedCount = db.bookings.filter(b => b.class_id === classId && b.status === 'confirmed').length;
+        if (bookedCount >= cls.max_participants) return { ok: false, error: "Нет свободных мест" };
+        
+        const bookingId = getNextId(db, "bookings");
+        db.bookings.push({ id: bookingId, client_id: client.id, class_id: classId, booking_date: new Date().toISOString(), status: "confirmed" });
+        cls.current_participants++;
+        saveDB(db);
+        return { ok: true, message: "Вы успешно записались!" };
+    }
+
+    function cancelBookingById(userId, bookingId) {
+        const db = loadDB();
+        const client = db.clients.find(c => c.user_id === userId);
+        if (!client) return { ok: false, error: "Клиент не найден" };
+        
+        const booking = db.bookings.find(b => b.id === bookingId && b.client_id === client.id);
+        if (!booking) return { ok: false, error: "Запись не найдена" };
+        if (booking.status !== 'confirmed') return { ok: false, error: "Запись уже отменена" };
+        
+        booking.status = 'cancelled';
+        const cls = db.classes.find(c => c.id === booking.class_id);
+        if (cls) cls.current_participants--;
+        saveDB(db);
+        return { ok: true, message: "Запись отменена" };
+    }
+
+    function getMyBookings(userId) {
+        const db = loadDB();
+        const client = db.clients.find(c => c.user_id === userId);
+        if (!client) return [];
+        const result = [];
+        db.bookings.forEach(b => {
+            if (b.client_id === client.id && b.status === 'confirmed') {
+                const cls = db.classes.find(c => c.id === b.class_id);
+                if (cls) result.push({ id: b.id, ...cls });
+            }
+        });
+        return result;
+    }
+
+    function getHistory(userId) {
+        const db = loadDB();
+        const client = db.clients.find(c => c.user_id === userId);
+        if (!client) return [];
+        const result = [];
+        db.bookings.forEach(b => {
+            if (b.client_id === client.id && b.status === 'cancelled') {
+                const cls = db.classes.find(c => c.id === b.class_id);
+                if (cls) result.push({ ...cls, cancelled_date: b.booking_date.slice(0, 10) });
+            }
+        });
+        return result;
+    }
+
+    function addNewClass(title, instructor, datetime, maxParticipants, location, price) {
+        const db = loadDB();
+        const newId = getNextId(db, "classes");
+        db.classes.push({
+            id: newId, title, instructor, datetime: new Date(datetime).toISOString(),
+            max_participants: parseInt(maxParticipants), current_participants: 0, location, price: parseInt(price)
+        });
+        saveDB(db);
+        return { ok: true, message: "Занятие добавлено!" };
+    }
+
+    function getStats() {
+        const db = loadDB();
+        return {
+            total_users: db.users.length,
+            total_clients: db.clients.length,
+            total_instructors: db.users.filter(u => u.role === 'instructor').length,
+            total_classes: db.classes.length,
+            total_bookings: db.bookings.filter(b => b.status === 'confirmed').length
+        };
+    }
+
+    // UI функции
+    function switchTab(tab) {
+        document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+        document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+    }
+
+    function doLogin() {
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        
+        const result = login(email, password);
+        if (result.ok) {
+            currentUser = result.user;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showApp();
+            if (currentUser.role === 'client') showPage('schedule');
+            else if (currentUser.role === 'instructor') showPage('instructor-classes');
+            else if (currentUser.role === 'admin') showPage('admin');
+        } else {
+            document.getElementById('login-error').textContent = result.error;
+        }
+    }
+
+    function doRegister() {
+        const name = document.getElementById('reg-name').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const password = document.getElementById('reg-password').value;
+        const phone = document.getElementById('reg-phone').value.trim();
+        const role = document.getElementById('reg-role').value;
+        
+        const result = register(name, email, password, phone, role);
+        if (result.ok) {
+            document.getElementById('register-message').style.color = '#4CAF50';
+            document.getElementById('register-message').textContent = result.message;
+            setTimeout(() => switchTab('login'), 1500);
+        } else {
+            document.getElementById('register-message').style.color = '#E74C3C';
+            document.getElementById('register-message').textContent = result.error;
+        }
+    }
+
+    function doLogout() {
+        localStorage.removeItem('currentUser');
+        currentUser = null;
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('auth-screen').style.display = 'flex';
+        switchTab('login');
+    }
+
+    function showApp() {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'flex';
+        document.getElementById('sidebar-name').textContent = currentUser.name;
+        const roleNames = { client: 'Клиент', instructor: 'Инструктор', admin: 'Администратор' };
+        document.getElementById('sidebar-role').textContent = roleNames[currentUser.role];
+        
+        document.getElementById('nav-my-classes').style.display = currentUser.role === 'client' ? 'flex' : 'none';
+        document.getElementById('nav-history').style.display = currentUser.role === 'client' ? 'flex' : 'none';
+        document.getElementById('nav-instructor').style.display = currentUser.role === 'instructor' ? 'flex' : 'none';
+        document.getElementById('nav-admin').style.display = currentUser.role === 'admin' ? 'flex' : 'none';
+    }
+
+    function showPage(page) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(`page-${page}`).classList.add('active');
+        
+        if (page === 'schedule') renderSchedule();
+        else if (page === 'my-classes') renderMyClasses();
+        else if (page === 'history') renderHistory();
+        else if (page === 'instructor-classes') renderInstructorClasses();
+        else if (page === 'admin') renderAdmin();
+    }
+
+    function renderSchedule() {
+        const classes = getAllClasses();
+        const grid = document.getElementById('schedule-grid');
+        grid.innerHTML = '';
+        classes.forEach(cls => {
+            const isFull = cls.booked_count >= cls.max_participants;
+            const date = new Date(cls.datetime);
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <h4>${cls.title}</h4>
+                <p><i class="fas fa-user-circle"></i> ${cls.instructor}</p>
+                <p><i class="fas fa-calendar"></i> ${date.toLocaleDateString('ru-RU')} в ${date.toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' })}</p>
+                <p><i class="fas fa-map-marker-alt"></i> ${cls.location}</p>
+                <p><i class="fas fa-users"></i> Мест: ${cls.booked_count}/${cls.max_participants}</p>
+                <p><i class="fas fa-ruble-sign"></i> <span class="price">${cls.price} ₽</span></p>
+                ${currentUser.role === 'client' ? 
+                    `<button class="btn btn-primary" ${isFull ? 'disabled' : ''} onclick="openBookingModal(${cls.id}, '${cls.title}')">${isFull ? 'Мест нет' : 'Записаться'}</button>` : ''}
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function renderMyClasses() {
+        const bookings = getMyBookings(currentUser.id);
+        const container = document.getElementById('my-classes-content');
+        if (bookings.length === 0) {
+            container.innerHTML = '<div class="empty">Нет активных записей</div>';
+            return;
+        }
+        let html = `<div class="table-wrap"><table><thead><tr><th>Занятие</th><th>Инструктор</th><th>Дата</th><th>Время</th><th>Цена</th><th></th></tr></thead><tbody>`;
+        bookings.forEach(b => {
+            const date = new Date(b.datetime);
+            html += `<tr><td>${b.title}</td><td>${b.instructor}</td><td>${date.toLocaleDateString('ru-RU')}</td><td>${date.toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' })}</td><td>${b.price} ₽</td><td><button class="btn btn-secondary btn-sm" onclick="cancelBooking(${b.id})">Отменить</button></td></tr>`;
+        });
+        html += `</tbody></table></div>`;
+        container.innerHTML = html;
+    }
+
+    function renderHistory() {
+        const history = getHistory(currentUser.id);
+        const container = document.getElementById('history-content');
+        if (history.length === 0) {
+            container.innerHTML = '<div class="empty">Нет истории</div>';
+            return;
+        }
+        let html = `<div class="table-wrap"><table><thead><tr><th>Занятие</th><th>Инструктор</th><th>Дата</th><th>Дата отмены</th></tr></thead><tbody>`;
+        history.forEach(h => {
+            const date = new Date(h.datetime);
+            html += `<tr><td>${h.title}</td><td>${h.instructor}</td><td>${date.toLocaleDateString('ru-RU')}</td><td>${h.cancelled_date}</td></tr>`;
+        });
+        html += `</tbody></table></div>`;
+        container.innerHTML = html;
+    }
+
+    function renderInstructorClasses() {
+        const classes = getInstructorClasses(currentUser.name);
+        const grid = document.getElementById('instructor-classes-grid');
+        grid.innerHTML = '';
+        classes.forEach(cls => {
+            const date = new Date(cls.datetime);
+            let clientsHtml = '<div class="client-list"><strong>Записались:</strong>';
+            if (cls.clients && cls.clients.length > 0) {
+                cls.clients.forEach(c => { clientsHtml += `<div class="client-item">🧘 ${c.name} — ${c.phone || 'нет телефона'}</div>`; });
+            } else { clientsHtml += '<div>Нет записавшихся</div>'; }
+            clientsHtml += '</div>';
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `<h4>${cls.title}</h4><p><i class="fas fa-calendar"></i> ${date.toLocaleDateString('ru-RU')} в ${date.toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' })}</p><p><i class="fas fa-map-marker-alt"></i> ${cls.location}</p><p><i class="fas fa-chair"></i> Мест: ${cls.booked_count}/${cls.max_participants}</p>${clientsHtml}`;
+            grid.appendChild(card);
+        });
+    }
+
+    function renderAdmin() {
+        const stats = getStats();
+        document.getElementById('stats-grid').innerHTML = `
+            <div class="stat-card"><h4>Всего пользователей</h4><p>${stats.total_users}</p></div>
+            <div class="stat-card"><h4>Клиенты</h4><p>${stats.total_clients}</p></div>
+            <div class="stat-card"><h4>Инструкторы</h4><p>${stats.total_instructors}</p></div>
+            <div class="stat-card"><h4>Занятия</h4><p>${stats.total_classes}</p></div>
+            <div class="stat-card"><h4>Активных записей</h4><p>${stats.total_bookings}</p></div>
+        `;
+    }
+
+    function addClass() {
+        const title = document.getElementById('new-title').value.trim();
+        const instructor = document.getElementById('new-instructor').value.trim();
+        const datetime = document.getElementById('new-datetime').value;
+        const maxParticipants = document.getElementById('new-max').value;
+        const location = document.getElementById('new-location').value.trim();
+        const price = document.getElementById('new-price').value;
+        
+        if (!title || !instructor || !datetime) {
+            document.getElementById('add-class-message').textContent = 'Заполните поля';
+            return;
+        }
+        const result = addNewClass(title, instructor, datetime, maxParticipants, location, price);
+        document.getElementById('add-class-message').style.color = '#4CAF50';
+        document.getElementById('add-class-message').textContent = result.message;
+        setTimeout(() => { renderSchedule(); document.getElementById('add-class-message').textContent = ''; }, 1500);
+    }
+
+    function openBookingModal(classId, title) {
+        selectedClassId = classId;
+        document.getElementById('modal-title').innerHTML = title;
+        document.getElementById('booking-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('booking-modal').style.display = 'none';
+        selectedClassId = null;
+    }
+
+    function confirmBooking() {
+        const result = bookClass(currentUser.id, selectedClassId);
+        if (result.ok) {
+            document.getElementById('modal-message').style.color = '#4CAF50';
+            document.getElementById('modal-message').textContent = result.message;
+            setTimeout(() => { closeModal(); renderSchedule(); renderMyClasses(); }, 1500);
+        } else {
+            document.getElementById('modal-message').style.color = '#E74C3C';
+            document.getElementById('modal-message').textContent = result.error;
+        }
+    }
+
+    function cancelBooking(bookingId) {
+        if (confirm('Отменить запись?')) {
+            const result = cancelBookingById(currentUser.id, bookingId);
+            alert(result.message);
+            renderMyClasses();
+            renderSchedule();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadDB();
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            currentUser = JSON.parse(savedUser);
+            showApp();
+            if (currentUser.role === 'client') showPage('schedule');
+            else if (currentUser.role === 'instructor') showPage('instructor-classes');
+            else if (currentUser.role === 'admin') showPage('admin');
+        }
+    });
+</script>
+</body>
+</html>
